@@ -85,7 +85,7 @@
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
             "browserTarget": "ng-practice-workspace:build:development",
-            "port": 4200
+            "port": 4700
           },
           "configurations": {
             "production": {
