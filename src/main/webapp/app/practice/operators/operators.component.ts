@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, concat, delay, fromEvent, interval, merge, of, range, take } from 'rxjs';
-import { map, mergeAll, switchAll, switchMap, switchMapTo, tap } from 'rxjs/operators';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { Observable, Subject, concat, delay, fromEvent, interval, merge, of, range, take } from 'rxjs';
+import { debounceTime, map, pluck, switchAll, tap } from 'rxjs/operators';
 /**
  * Strategies
  * 1. Interleave events by merging streams
@@ -22,7 +23,7 @@ import { map, mergeAll, switchAll, switchMap, switchMapTo, tap } from 'rxjs/oper
  * 3. Switch to the latest stream data
  *
  *  - Suppose you want  a different behavior, such as cancelling the first sequence when a new one begins emitting.
- *
+ *    - 01: Send HTTP request within the event's pipeline, such as using the search input to filter the data at server side.
  *
  *
 */
@@ -33,6 +34,10 @@ import { map, mergeAll, switchAll, switchMap, switchMapTo, tap } from 'rxjs/oper
 })
 export class OperatorsComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
+
+  @ViewChild('searchInput') searchInput!: ElementRef<any>;
+
+  searchControl = new FormControl('');
 
   constructor() {
     console.error('');
@@ -102,14 +107,48 @@ export class OperatorsComponent implements OnInit, OnDestroy {
     ).subscribe((obj: any) => console.error('Left: ', obj?.left, 'Top: ', obj?.top))
   }
 
-  switchBasic(): void {
-    const observable = fromEvent(document, 'click').pipe(
+  /**
+   * @function switchBasicUsage
+   * @returns void
+   * Switch to the latest observable data. Suppose you wanted a different behavior, such as canceling the first sequence when a new one begins emitting.
+   * We can use `switchAll()` to handle the http request after the change event's pipeline.
+   *
+  */
+  switchBasicUsage(): void {
+    const observable = fromEvent(document, 'click')
+    // Listens for any clicks on the page
+
+    .pipe(
+
+      // Maps another observable to the source observable
       map(click => range(1, 3)),
+
+      // Using switchAll to begin emitting data from the projected observable
       switchAll(),
+
     ).subscribe(value => console.error('switch all output: ', value));
 
-    merge(fromEvent(document, 'click'), range(1, 3)).subscribe(value => console.error('merge output: ', value))
+    merge(fromEvent(document, 'click'), range(1, 3)).subscribe(value => console.error('merge output: ', value));
 
+    // Use to filter the data from the backend server.
+    const search$ = fromEvent(this.searchInput.nativeElement, 'keyup').pipe(
+
+      pluck('target', 'value'),
+
+      // trigger change every 500 milliseconds
+      debounceTime(500),
+
+      tap((searchValue: any) => console.error(searchValue)),
+
+      map((searchValue: any) => this.fetchData(searchValue)),
+
+      switchAll()
+
+    ).subscribe(result  => console.error(result))
+  }
+
+  private fetchData(value: any): Observable<any> {
+    return of('Result '.concat(value)).pipe(delay(5000));
   }
 
 }

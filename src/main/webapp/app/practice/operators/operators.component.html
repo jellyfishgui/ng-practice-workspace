@@ -2,4 +2,11 @@
 <button mat-raised-button color="primary" (click)="mergeOperator()">Merge Interval Source</button>
 <button mat-raised-button color="primary" (click)="concatIntervalSource()">Concat Interval Source</button>
 <button mat-raised-button color="accent" (click)="mergeMouseUpAndTouchEnd()">Enable Merge Mouse Up and Touch End</button>
-<button mat-raised-button color="primary" (click)="switchBasic()">Switch Test</button>
+<button mat-raised-button color="primary" (click)="switchBasicUsage()">Switch Test</button>
+<form class="example-form">
+  <mat-form-field appearance="outline">
+    <mat-label>Search Input</mat-label>
+    <input matInput id="search" #searchInput [formControl]="searchControl"/>
+  </mat-form-field>
+</form>
+
