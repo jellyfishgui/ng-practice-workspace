@@ -147,8 +147,8 @@ export class OperatorsComponent implements OnInit, OnDestroy {
     ).subscribe(result  => console.error(result))
   }
 
-  private fetchData(value: any): Observable<any> {
-    return of('Result '.concat(value)).pipe(delay(5000));
+  private fetchData(value: any): Observable<any[]> {
+    return of(['Result '.concat(value)]).pipe(delay(5000));
   }
 
 }

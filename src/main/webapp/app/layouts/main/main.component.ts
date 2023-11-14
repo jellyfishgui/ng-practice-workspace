@@ -9,6 +9,14 @@ import { AccountService } from 'app/core/auth/account.service';
 @Component({
   selector: 'mg-main',
   templateUrl: './main.component.html',
+  styles:[
+    `
+      .route-container {
+        background-color: white;
+        padding: 1rem;
+      }
+    `
+  ]
 })
 export class MainComponent implements OnInit {
   private renderer: Renderer2;
