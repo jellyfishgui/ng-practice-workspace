@@ -4,13 +4,15 @@ import { OperatorsComponent } from './operators/operators.component';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'app/shared/shared.module';
 import { MergeMapOpertorComponent } from './merge-map-opertor/merge-map-opertor.component';
+import { BasicTableComponent } from './basic-table/basic-table.component';
 
 
 
 @NgModule({
   declarations: [
     OperatorsComponent,
-    MergeMapOpertorComponent
+    MergeMapOpertorComponent,
+    BasicTableComponent
   ],
   imports: [
     RouterModule.forChild([
@@ -21,6 +23,10 @@ import { MergeMapOpertorComponent } from './merge-map-opertor/merge-map-opertor.
       {
         path: 'merge-map',
         component: MergeMapOpertorComponent
+      },
+      {
+        path: 'table',
+        component: BasicTableComponent
       }
     ]),
     SharedModule,

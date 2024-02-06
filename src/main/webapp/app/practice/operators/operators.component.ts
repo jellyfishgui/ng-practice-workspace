@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Observable, Subject, concat, delay, fromEvent, interval, merge, of, range, take } from 'rxjs';
-import { debounceTime, map, pluck, switchAll, tap } from 'rxjs/operators';
+import { Observable, Subject, Subscription, concat, delay, fromEvent, interval, merge, of, range, take } from 'rxjs';
+import { concatMap, debounceTime, filter, map, mergeMap, pluck, switchAll, switchMap, takeUntil, tap } from 'rxjs/operators';
 /**
  * Strategies
  * 1. Interleave events by merging streams
@@ -38,6 +38,12 @@ export class OperatorsComponent implements OnInit, OnDestroy {
   @ViewChild('searchInput') searchInput!: ElementRef<any>;
 
   searchControl = new FormControl('');
+
+  intervalSubscription?: Subscription;
+
+  specialCount = 0;
+
+  specialCountLine2 = 0;
 
   constructor() {
     console.error('');
@@ -147,8 +153,48 @@ export class OperatorsComponent implements OnInit, OnDestroy {
     ).subscribe(result  => console.error(result))
   }
 
+  intervalOperatorTest(): void {
+    const productionLine = ['Line1', 'Line2'];
+    const request$ = interval(3000).pipe(
+      takeUntil(this.destroy$),
+      switchMap(() => this.fakeRequest(productionLine[0], 0)),
+      map((res: any, index: number) => {
+        console.error(res.name, this.specialCount);
+      }),
+      filter(() => productionLine.length > 1),
+      switchMap(() => this.fakeRequest(productionLine[1], 1)),
+      map((res: any, index: number) => {
+        console.error(res.name, this.specialCount);
+      })
+    )
+    request$.subscribe();
+  }
+
+  clearInterval(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private fetchData(value: any): Observable<any[]> {
     return of(['Result '.concat(value)]).pipe(delay(5000));
+  }
+
+  private fakeRequest(lineName: string, lineIndex: number): Observable<any> {
+    let defaultDelay = 500;
+    if (lineIndex === 0) {
+      this.specialCount++;
+      console.error('request count', lineName, this.specialCount)
+    }
+    if (lineIndex === 1) {
+      this.specialCountLine2++;
+      console.error('request count', lineName, this.specialCountLine2)
+    }
+
+    if (this.specialCount === 7 || this.specialCountLine2 === 7) {
+      defaultDelay = 3800;
+    }
+
+    return of({ name: lineName, data: []}).pipe(delay(defaultDelay));
   }
 
 }
